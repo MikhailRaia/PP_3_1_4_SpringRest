@@ -1,13 +1,19 @@
 package web.model;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "users")
+@Transactional
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +24,16 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+
+    @ManyToMany
+            (fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinTable (
+            name = "users_roles",
+            joinColumns = {
+                    @JoinColumn(name = "user_id")},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "role_id")})
     private Set<Role> roles;
 
     public User() {}
@@ -115,7 +130,6 @@ public class User implements UserDetails {
                 '}';
     }
 
-    //security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;

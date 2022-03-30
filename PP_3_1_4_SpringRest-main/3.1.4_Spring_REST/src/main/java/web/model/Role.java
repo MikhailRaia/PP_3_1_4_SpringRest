@@ -1,21 +1,37 @@
 package web.model;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@Transactional
 public class Role implements GrantedAuthority {
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String roleName;
 
     @Transient
     @ManyToMany(mappedBy = "roles")
+
+    @JoinTable (
+            name = "users_roles",
+            joinColumns = {
+                    @JoinColumn(name = "role_id")},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "user_id")})
     private Set<User> users;
 
+    public Set<User> getUsers() {
+        return users;
+    }
+
+
+    public void setUsers(Set<User> users){
+        this.users=users;
+    }
     public Role() {}
 
     public Role(String roleName) {
@@ -52,4 +68,5 @@ public class Role implements GrantedAuthority {
     public String toString() {
         return roleName;
     }
+
 }
